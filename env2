@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 #
 #$Info: env2 - Converts environment variables to various script languages. $
 
@@ -190,19 +190,21 @@ use FindBin qw($RealBin $RealScript);
 use Data::Dumper;
 use FileHandle;
 use Cwd qw(getcwd abs_path);
-use Digest::SHA qw(sha1);
-use YAML;
+BEGIN { eval 'use Digest::SHA qw(sha1)'; }
+our $use_sha1=defined &sha1;
+BEGIN { eval 'use YAML'; }
+our $use_yaml=defined &YAML::LoadFile;
 STDOUT->autoflush(1);
 STDERR->autoflush(1);
 our $start_dir = &getcwd();
-our $LINE;
+our $LINE = '?';
 use vars qw{$SHA1};
 our $verbose = 0;
 our (@DANGER_LIST,@USER_PREFS,@DEFAULT_IGNORE,@IGNORE,@ONLY);
 
 # Compute SHA for the script
-BEGIN {
-  our $SHA1 = 'dabe7214ea53d986b07fe19064cb0614533f89e0'; # This is the version string
+if ($use_sha1) {
+  our $SHA1 = 'd3f7bcb9407b9096c5fc4e76ef57c4eb5d3f9299'; # This is the version string
   my $sha = Digest::SHA->new(1);
   open SCRIPT,"<$RealBin/$RealScript";
   while (<SCRIPT>) {
@@ -311,7 +313,9 @@ if (@ARGV == 0 or scalar(@ARGV) and $ARGV[0] =~ m/^-{1,2}h(elp)?/) {
         die "FATAL(env2): -f requires a valid filename!\n";
       }#endif
     } elsif ($arg eq '-v') {
-      $verbose++; # not used currently
+      $verbose++;
+      print "Using YAML\n" if $use_yaml;
+      print "Using SHA1\n" if $use_sha1;
     } elsif ($arg =~ m{^-{1,2}from$}) {
       $ishell = shift(@ARGV);
     } elsif ($arg =~ m{^-{1,2}debug$}) {
@@ -362,7 +366,7 @@ if (@ARGV == 0 or scalar(@ARGV) and $ARGV[0] =~ m/^-{1,2}h(elp)?/) {
   # Determine input
   ############################################################################
   if (scalar(@LIST) and $LIST[0] !~ m{^-?$}) { # File input
-    $ifile = shift(@LIST);
+    $ifile = abs_path shift(@LIST);
     if ($ishell eq 'UNKNOWN') { # Determine type from file
       open IFILE,"<$ifile" or die "FATAL(env2): Unable to read '$ifile'!?\n";
       my $line;
