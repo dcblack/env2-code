@@ -116,7 +116,8 @@ saves an intermediate file to /tmp/env2.$$.pl.
 
 =item B<-sha1>
 
-Displays the SHA1 version identifier.
+Displays the SHA1 version identifier. Use this to see if script has been
+modified since last updated.
 
 =item B<-to> DIALECT
 
@@ -204,7 +205,7 @@ our (@DANGER_LIST,@USER_PREFS,@DEFAULT_IGNORE,@IGNORE,@ONLY);
 
 # Compute SHA for the script
 if ($use_sha1) {
-  our $SHA1 = 'd3f7bcb9407b9096c5fc4e76ef57c4eb5d3f9299'; # This is the version string
+  our $SHA1 = '75eb883f3dd210156241e92194b324337b59f6ee'; # this is the version string
   my $sha = Digest::SHA->new(1);
   open SCRIPT,"<$RealBin/$RealScript";
   while (<SCRIPT>) {
@@ -425,6 +426,7 @@ if (@ARGV == 0 or scalar(@ARGV) and $ARGV[0] =~ m/^-{1,2}h(elp)?/) {
   my $exe = "$RealBin/$RealScript";
   #{:TODO - possible pipe output instead of write to temp file:}
   my $efile = "/tmp/env2.$$.pl";
+  our $logfile = "/tmp/env2.$$.log";
   our $NEWENV;
   our %OLDENV = %ENV;
   our %DEL_YAML;
@@ -438,24 +440,27 @@ if (@ARGV == 0 or scalar(@ARGV) and $ARGV[0] =~ m/^-{1,2}h(elp)?/) {
   } elsif ($ishell =~ m/\b(?:yml|yaml|YAML)\b/) {
     $NEWENV = YAML::LoadFile $ifile;
   } elsif ($ishell =~ m/\bcsh/) {
-    $status = system $ishell,'-f','-c',"source $ifile;$exe --save $efile";
+    $status = system $ishell,'-f','-c',"source $ifile >&$logfile;$exe --save $efile";
   } elsif ($ishell =~ m/ksh/) {
-    $status = system $ishell,'-c',". $ifile;$exe --save $efile";
+    $status = system $ishell,'-c',". $ifile >$logfile 2>&1;$exe --save $efile";
   } elsif ($ishell =~ m/bash/) {
-    $status = system $ishell,'--noprofile','--norc','-c',". $ifile;$exe --save $efile";
+    $status = system $ishell,'--noprofile','--norc','-c',". $ifile >$logfile 2>&1;$exe --save $efile";
   } elsif ($ishell =~ m/\bperl/) {
     system("cp $ifile $efile");
   } elsif ($ishell =~ m/vim\b/) {
     die "FATAL(env2:$LINE): vim not yet supported for input!";
   } elsif ($ishell !~ m/perl/) {
-    $status = system $ishell,'-f','-c',". $ifile;$exe --save $efile";
+    $status = system $ishell,'-f','-c',". $ifile >$logfile;$exe --save $efile";
   }#endif
   die "FATAL(env2:$LINE): $?\n" if $status != 0;
   if ($ishell !~ m/\b(?:yml|yaml|YAML)\b/) {
     require $efile;
   }#endif
-  unlink $efile if not $debug;
-  unlink $ifile if $ifile =~ m{^/tmp/env2\.$$\.} and not $debug;
+  if (not $debug) {
+    unlink $efile;
+    unlink $logfile;
+    unlink $ifile if $ifile =~ m{^/tmp/env2\.$$\.};
+  }
   ############################################################################
   # PROCESS
   ############################################################################
