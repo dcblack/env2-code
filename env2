@@ -145,6 +145,10 @@ adverse affect on operation of UNIX.
 
 See also B<-clear>, B<-ignore> and B<-reset>.
 
+=item B<--version>
+
+Display version of script.
+
 =back
 
 =head1 ENVIRONMENT
@@ -202,10 +206,11 @@ our $LINE = '?';
 use vars qw{$SHA1};
 our $verbose = 0;
 our (@DANGER_LIST,@USER_PREFS,@DEFAULT_IGNORE,@IGNORE,@ONLY);
+our $VERSION = '1.1.0'; ########################## <<< UPDATE THIS LINE WHEN FIXING BUGS OR ADDING FEATURES >>> ###
 
 # Compute SHA for the script
 if ($use_sha1) {
-  our $SHA1 = '75eb883f3dd210156241e92194b324337b59f6ee'; # this is the version string
+  our $SHA1 = '18017c6e340372ef014013675b6bb799e60cc971'; #### <<< UPDATE THIS LINE WHEN COMMITTING CHANGES >>> ###
   my $sha = Digest::SHA->new(1);
   open SCRIPT,"<$RealBin/$RealScript";
   while (<SCRIPT>) {
@@ -321,6 +326,8 @@ if (@ARGV == 0 or scalar(@ARGV) and $ARGV[0] =~ m/^-{1,2}h(elp)?/) {
       $ishell = shift(@ARGV);
     } elsif ($arg =~ m{^-{1,2}debug$}) {
       $debug = 1; # suppress deletion of temporary files
+    } elsif ($arg =~ m{^-{1,2}version$}) {
+      printf STDERR "%s Version #%s\n",$RealBin,$VERSION;
     } elsif ($arg =~ m{^-{1,2}sha(?:1?)$}) {
       printf STDERR "%s %s/%s\n",$SHA1,$RealBin,$RealScript;
     } elsif ($arg =~ m{^-{1,2}only$}) { 
