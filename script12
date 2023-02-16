@@ -1,0 +1,13 @@
+#!/bin/sh
+#
+# Demonstrates special prepend/append features
+
+if [[ "$TVAR_PRE" == "" ]]; then
+  export TVAR_PRE=A:B:C
+  export TVAR_SUF=D:E:F
+  export TVAR_MID=G:H:I
+else
+  export TVAR_PRE=1:2:$TVAR_PRE
+  export TVAR_SUF=$TVAR_PRE:3:4
+  export TVAR_MID=5:6:$TVAR_PRE:7:8
+fi

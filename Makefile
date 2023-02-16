@@ -1,75 +1,89 @@
 #!/bin/make -f
 
 TOOL_NAME=env2
-EXE=./$(TOOL_NAME)
-INSTALL_DIR=/eda/hldw/bin
-MANPAGE_DIR=/eda/hldw/man/manl
+EXE=./${TOOL_NAME}
+INSTALL_DIR=${HOME}/.local/bin
+MANPAGE_DIR=${HOME}/.local/man/manl
+
+P=${HOME}/.local/bin:${HOME}/bin:/usr/bin:/bin
 
 .PHONY: default test perms test0 test1 test2 test3 test4 test5 test6 test7 test8 test9 test10 test11 test12
 
 default: test
 
-test: perms test0 test1 test2 test3 test4 test5 test6 test7 test9 test10 test11 test12
+test: perms test0 test1 test2 test3 test4 test5 test6 test7 test9 test10 test11 test12 test13
 
-HEADING=header -uc $@
+HEADING=echo "[92m"$@: $1"[0m"
 
 perms :
-	chmod a+rx $(EXE)
+	chmod a+rx "${EXE}"
 test0 :
-	@$(HEADING)
-	$(EXE) --save
+	@$(call HEADING,Save environment)
+	env PATH="$P" "${EXE}" --save
 test1 :
-	@$(HEADING)
+	@$(call HEADING,Basic shell)
 	file script1
-	$(EXE) -o out1.sh script1
+	env PATH="$P" CURVAR="unmodified" OLDVAR="old" "${EXE}" -o $(subst test,out,$@).sh script1
 test2 :
-	@$(HEADING)
+	@$(call HEADING,Inline bash)
 	file script2
-	$(EXE) -o - script2 | tee out2.bash
+	env PATH="$P" "${EXE}" -o - script2 | tee $(subst test,out,$@).bash
 test3 :
-	@$(HEADING)
+	@$(call HEADING,Csh to modulecmd)
 	file script3
-	env TOOL_SETUP=./script3 $(EXE) -from csh -to modulecmd -o out3.modules script3
+	env PATH="$P" env TOOL_SETUP=./script3 "${EXE}" -from csh -to modulecmd -o $(subst test,out,$@).modules script3
 test4 :
-	@$(HEADING)
+	@$(call HEADING,ksh to csh)
 	file script4
-	$(EXE) -from sh -to csh  -o out4.csh script4
+	env PATH="$P" "${EXE}" -from sh -to csh  -o $(subst test,out,$@).csh script4
 test5 :
-	@$(HEADING)
+	@$(call HEADING,perl to lua)
 	file script5
-	$(EXE) -to lua  -o out5.lua script5
+	env PATH="$P" "${EXE}" -to lua  -o $(subst test,out,$@).lua script5
 test6 :
-	@$(HEADING)
+	@$(call HEADING,tcl to ksh)
 	file script6
-	env OLDVAR=bad $(EXE) -to ksh  -o out6.ksh script6
+	env PATH="$P" OLDVAR=bad "${EXE}" -to ksh  -o $(subst test,out,$@).ksh script6
 test7 :
-	@$(HEADING)
+	@$(call HEADING,yaml to tcl)
 	file script7
-	$(EXE) -from yaml -to tcl  -o out7.tcl script7
+	env PATH="$P" "${EXE}" -from yaml -to tcl  -o $(subst test,out,$@).tcl script7
 test8 :
-	@$(HEADING)
+	@$(call HEADING,lua to bash)
 	file script8
-	$(EXE) -from lua -to bash -o out8.ksh script8
+	env PATH="$P" "${EXE}" -from lua -to bash -o $(subst test,out,$@).ksh script8
 test9 :
-	@$(HEADING)
+	@$(call HEADING,bash to zsh)
 	file script9
-	$(EXE) -to zsh  -o out9.all script9
+	env PATH="$P" "${EXE}" -to zsh  -o $(subst test,out,$@).all script9
 test10 :
-	@$(HEADING)
+	@$(call HEADING,pipe sh to perl)
 	file script10
-	cat script10 | $(EXE) -all -to perl -o out10.perl -
+	cat script10 | env PATH="$P" "${EXE}" -all -to perl -o $(subst test,out,$@).perl -
 test11 :
-	@$(HEADING)
-	$(EXE) -all -only USER,HOST -to sh   -o out11.sh
+	@$(call HEADING,specific variables to sh)
+	env PATH="$P" "${EXE}" -all -only USER,HOST -to sh   -o $(subst test,out,$@).sh
 test12 :
-	@$(HEADING)
+	@$(call HEADING,optional to csh)
 	file script12
-	$(EXE) -from sh -to csh  -o out12.csh script12
+	env PATH="$P" TVAR_PRE="x:y" "${EXE}" -from sh -to csh  -o $(subst test,out,$@).csh script12
 
-install :
-	@$(HEADING)
-	$(EXE) --INSTALL
-	rsync -auvP $(EXE) $(INSTALL_DIR)/
-	pod2man $(EXE) >$(MANPAGE_DIR)/$(EXE)
+test13:
+	@$(call HEADING,basic to cmake)
+	file script1
+	env PATH="$P" CURVAR="unmodified" OLDVAR="old" "${EXE}" -to cmake -o $(subst test,out,$@).cmake script1
+
+update-sha1 :
+	@${HEADING}
+	-@"${EXE}" --INSTALL;\
+	perl -pi -e 'our $$s;BEGIN{ $$s=shift@ARGV;$$s=~s/ .*//} s/[{][^}]*[}]/{$$s}/ if m/^our .SHA1 = q/' `cat "${HOME}/.${TOOL_NAME}.sha1"` "${EXE}"
+
+install : update-sha1
+	@${HEADING}
+	"${EXE}" --INSTALL
+	mkdir -p "${INSTALL_DIR}"
+	rsync -auvP "${EXE}" "${INSTALL_DIR}/"
+	mkdir -p "${MANPAGE_DIR}"
+	pod2man "${EXE}" >"${MANPAGE_DIR}/${EXE}"
 
 #TAF!
