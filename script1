@@ -1,0 +1,8 @@
+#!/bin/sh
+#
+# Demonstrates basic operation
+
+export NEWVAR="New value script 1"
+CURVAR="Current value script 1"
+unset  OLDVAR
+PATH=SH_PREPEND/bin:$PATH

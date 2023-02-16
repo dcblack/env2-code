@@ -1,0 +1,7 @@
+-- -*- lua -*-
+
+os.setenv("NEWVAR8","New value script 8")
+os.setenv("CURVAR","Current value script 8")
+os.unsetenv("OLDVAR")
+prepend_path("PATH",getenv("PATH"))
+

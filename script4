@@ -1,0 +1,7 @@
+#!/bin/ksh
+#
+# Demonstrates passing arguments
+
+export NEWVAR4="New value script 4 - $1"
+CURVAR="Current value script 4 - $2"
+PATH=${PATH}:BASH_APPEND/bin

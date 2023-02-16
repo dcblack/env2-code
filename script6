@@ -1,0 +1,8 @@
+#!/usr/bin/tclsh
+
+set ::env(NEWVAR6) {New value script 6}
+set ::env(CURVAR) "Current value script 6"
+if {[info exists ::env(OLDVAR)]} {
+  unset ::env(OLDVAR)
+}
+set ::env(PATH) "TCL_PREPEND/bin:$::env(PATH)"

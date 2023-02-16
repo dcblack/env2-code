@@ -1,0 +1,8 @@
+#!/bin/bash
+#
+# Demonstrates STDOUT suppression
+
+export NEWVAR2="New value script 2"
+CURVAR="Current value script 2"
+PATH=${PATH}:BASH_APPEND/bin
+echo "Script 2 to stdout"

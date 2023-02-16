@@ -1,0 +1,6 @@
+#!/usr/bin/perl
+
+$ENV{'NEWVAR5'} = "New value script 5";
+$env{'CURVAR'} = "Current value script 5";
+delete $ENV{'OLDVAR'};
+$ENV{'PATH'} .= ":PERL_APPEND/bin";

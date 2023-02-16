@@ -1,0 +1,8 @@
+#!/bin/csh
+#
+# Demonstrates STDERR suppression
+
+setenv NEWVAR3 "VALUE4"
+setenv CURVAR  "Current value script 3"
+set path = "${path} CSH_APPEND/bin"
+echo "Script 3 to stderr" 1>&2
