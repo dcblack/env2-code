@@ -326,7 +326,7 @@ $_C{text} = $_C{none};
 #-------------------------------------------------------------------------------
 # Compute SHA for the script
 #-------------------------------------------------------------------------------
-our $SHA1 = q{0e60d376b94ac22a9c7254fa90f8348986ef308b}; # this is the version string
+our $SHA1 = q{2ba63cdb4baddc038ee0dcf00c829980668e139f}; # this is the version string
 if ($use_sha1) {
   my $sha = Digest::SHA->new(1);
   open SCRIPT,"<","$RealBin/$RealScript";
@@ -952,11 +952,13 @@ EOT
 
 exit 0;
 
+################################################################################
 sub System {
-  printf STDERR "$_C{debug}DEBUG:$_C{green} %%$_C{text} %s$_C{none}\n", "@_";
+  printf STDERR "$_C{debug}DEBUG:$_C{green} %%$_C{text} %s$_C{none}\n", "@_" if $main::debug;
   return system( @_ );
 }#endsub System
 
+################################################################################
 sub reduce {
     # Reduces a list to its unique entries without reordering by dropping duplicates.
     my (@old) = @_;
@@ -976,6 +978,7 @@ sub reduce {
     return wantarray ? @new : join(':',@new);
 }#endsub reduce
 
+################################################################################
 # Read command-line arguments from one or more files
 our %file_seen;
 sub read_args {
@@ -998,6 +1001,7 @@ sub read_args {
   return @results;
 }#endsub read_args
 
+################################################################################
 # Return a list based on separator ":" as used in PATH, MANPATH, LD_LIBRARY_PATH, et al
 sub List($) {
   my ($str) = @_;
@@ -1007,6 +1011,7 @@ sub List($) {
   return @list;
 }#endsub List
 
+################################################################################
 # Search for substring within string.
 sub IndexPath($$) {
   my ($str,$sub) = @_;
@@ -1044,6 +1049,7 @@ sub IndexPath($$) {
   return wantarray ? ($stridx,$pos) : $pos;
 }#endsub IndexPath
 
+################################################################################
 # Used for debugging
 sub TestIndexPath($$$$$) {
   my ($tno,$arg1,$arg2,$exp1,$exp2) = @_;
